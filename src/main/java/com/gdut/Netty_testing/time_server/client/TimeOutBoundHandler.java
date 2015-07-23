@@ -1,4 +1,4 @@
-package com.gdut.Netty_testing.server;
+package com.gdut.Netty_testing.time_server.client;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -13,7 +13,7 @@ import io.netty.channel.ChannelPromise;
  * @date 2015年7月8日 上午11:08:10
  * @version V1.0
  */
-public class TimeEncoder extends ChannelOutboundHandlerAdapter {
+public class TimeOutBoundHandler extends ChannelOutboundHandlerAdapter {
 	/**
 	 * @ClassName: TimeEncoder
 	 * @Description: 处理出站的返回
@@ -29,9 +29,7 @@ public class TimeEncoder extends ChannelOutboundHandlerAdapter {
 	@Override
 	public void write(ChannelHandlerContext ctx, Object msg,
 			ChannelPromise promise) {
-		UnixTime m = (UnixTime) msg;
-		ByteBuf encoded = ctx.alloc().buffer(4);
-		encoded.writeInt((int) m.value());
-		ctx.write(encoded, promise); // (1)
+		System.out.println(System.currentTimeMillis() + "  Outbound ");
+		ctx.read(); // (1)
 	}
 }

@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package com.gdut.Netty_testing.server;
+package com.gdut.Netty_testing.time_server.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -29,6 +29,8 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 
 /**
  * Echoes back any received data from a client.
@@ -75,14 +77,22 @@ public final class TimeServer {
 							if (sslCtx != null) {
 								p.addLast(sslCtx.newHandler(ch.alloc()));
 							}
-							p.addLast(new LoggingHandler(LogLevel.INFO),new TimeEncoder(),
-									 new TimeServerHandler());
-//							new TimeEncoder(),
+							p.addLast(new LoggingHandler(LogLevel.INFO),
+									new TimeEncoder(), new TimeServerHandler());
+							// new TimeEncoder(),
 						}
 					});
 
 			// Start the server.
 			ChannelFuture f = b.bind(PORT).sync();
+			f.addListener(new GenericFutureListener<Future<? super Void>>() {
+
+				public void operationComplete(Future<? super Void> future)
+						throws Exception {
+					// TODO Auto-generated method stub
+					System.out.println("success " + future.isSuccess());
+				}
+			});
 
 			// Wait until the server socket is closed.
 			f.channel().closeFuture().sync();

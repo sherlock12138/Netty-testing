@@ -13,12 +13,12 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package com.gdut.Netty_testing.client;
+package com.gdut.Netty_testing.time_server.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
-import com.gdut.Netty_testing.server.UnixTime;
+import com.gdut.Netty_testing.time_server.server.UnixTime;
 
 /**
  * 
@@ -40,7 +40,7 @@ public class TimeClientHandler extends ChannelInboundHandlerAdapter {
 	public void channelRead(ChannelHandlerContext ctx, Object msg) {
 		UnixTime m = (UnixTime) msg;
 		System.out.println(m);
-		ctx.close();
+		ctx.writeAndFlush(m);
 	}
 
     @Override

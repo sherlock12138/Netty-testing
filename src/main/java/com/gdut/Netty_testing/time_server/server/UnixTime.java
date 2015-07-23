@@ -1,4 +1,4 @@
-package com.gdut.Netty_testing.server;
+package com.gdut.Netty_testing.time_server.server;
 
 import java.util.Date;
 
@@ -20,7 +20,7 @@ public class UnixTime {
 	private final long value;
 
     public UnixTime() {
-        this(System.currentTimeMillis() / 1000L + 2208988800L);
+        this(System.currentTimeMillis() / 100L + 2208988800L);
     }
 
     public UnixTime(long value) {
@@ -33,7 +33,7 @@ public class UnixTime {
 
     @Override
     public String toString() {
-        return new Date((value() - 2208988800L) * 1000L).toString();
+        return new Date((value() - 2208988800L) * 100L).toString();
     }
 	
 	

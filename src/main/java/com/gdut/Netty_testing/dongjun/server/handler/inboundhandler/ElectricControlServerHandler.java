@@ -13,36 +13,41 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package com.gdut.Netty_testing.server;
+package com.gdut.Netty_testing.dongjun.server.handler.inboundhandler;
 
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
-/**
- * 
-* @Title: TimeServerHandler.java 
-* @Package com.gdut.netty_testing.pojo 
-* @Description: 处理进站的访问
-* @author Sherlock-lee   
-* @date 2015年7月8日 下午11:51:06 
-* @version V1.0
- */
-@Sharable
-public class TimeServerHandler extends ChannelInboundHandlerAdapter {
+import com.gdut.Netty_testing.dongjun.server.Command;
 
+public class ElectricControlServerHandler extends ChannelInboundHandlerAdapter {
+
+	@SuppressWarnings("unused")
 	@Override
-	public void channelActive(ChannelHandlerContext ctx) {
-		ChannelFuture f = ctx.writeAndFlush(new UnixTime());
-		f.addListener(ChannelFutureListener.CLOSE);
-	}
+	public void channelRead(ChannelHandlerContext ctx, Object msg)
+			throws Exception {
+
+		Command com = new Command((String) msg);
+		String val = "";
+		if (com != null) {
+			val = com.getValue();
+		} else {
+			ctx.close();
+			return;
+		}
+		if (val.startsWith("10")) {
+			ctx.channel().writeAndFlush("104901004A16");
+			System.out.println("定长帧");
+		} else if (val.startsWith("68")) {
+			System.out.println("可变长帧");
+		}
+
+	};
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-		// Close the connection when an exception is raised.
 		cause.printStackTrace();
 		ctx.close();
 	}
+
 }

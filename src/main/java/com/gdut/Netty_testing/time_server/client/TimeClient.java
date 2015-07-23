@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package com.gdut.Netty_testing.client;
+package com.gdut.Netty_testing.time_server.client;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -29,6 +29,7 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import io.netty.util.AttributeKey;
 
 /**
  * Sends one message when a connection is open and echoes back any received data
@@ -68,35 +69,32 @@ public final class TimeClient {
 			Bootstrap b = new Bootstrap();
 			b.group(group).channel(NioSocketChannel.class)
 					.option(ChannelOption.TCP_NODELAY, true)
-					// .handler(new ChannelInitializer<SocketChannel>() {
-					// @Override
-					// public void initChannel(SocketChannel ch)
-					// throws Exception {
-					// ChannelPipeline p = ch.pipeline();
-					// if (sslCtx != null) {
-					// p.addLast(sslCtx.newHandler(ch.alloc(), HOST,
-					// PORT));
-					// }
-					//
-					// p.addLast(new LoggingHandler(LogLevel.INFO));
-					// p.addLast(new TimeClientHandler());
-					// p.addLast(new TimeDecoder());
-					// }
-					// });
-					// b
 					.handler(new ChannelInitializer<SocketChannel>() {
 						@Override
 						public void initChannel(SocketChannel ch)
 								throws Exception {
 							ch.pipeline().addLast(new TimeDecoder(),
 									new TimeClientHandler(),
+									new TimeOutBoundHandler(),
 									new LoggingHandler(LogLevel.INFO));
 						}
 					});
 
 			// Start the client.
 			ChannelFuture f = b.connect(HOST, PORT).sync();
+			// channel.connect(remoteAddress, promise);
+			// 访问服务器，connect()不会触发这个终端的OutboundHandler
+			// 执行服务器的InboundHandler，logic是直接就生成了一个时间，没有任何参数要求。。
+			// 这真的就只是一个时间服务器。。
+			// 执行完InboundHandler之后，writeAndFlush(Object
+			// msg)方法触发了服务器的OutBoundHandler
+			// 将刚产生的时间转成二进制字节码，返回结果 也是用写方法 ctx.write(encoded, promise);
+			// 区别writeAndFlush(Object msg)
+			// 回来终端进入InboundHandler 执行 decoder（）解码，
+			// 然后是TimeClientHandler()业务Handler,
+			// ctx.close();最后没有进入OutBoundHandler 就结束了访问
 
+			Thread.sleep(9000);
 			// Wait until the connection is closed.
 			f.channel().closeFuture().sync();
 		} finally {
